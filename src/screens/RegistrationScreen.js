@@ -6,6 +6,8 @@ import * as Yup from 'yup'
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { StatusBar } from 'expo-status-bar';
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { ScrollView } from 'react-native-gesture-handler';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -21,8 +23,7 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 
 const auth = getAuth();
-
-
+const db = getFirestore();
 
 const RegistrationScreen = ({ navigation }) => {
     const createUser = (credentials) => {
@@ -33,6 +34,7 @@ const RegistrationScreen = ({ navigation }) => {
         console.log(userCredential)
         const { user } = userCredential;
         const { username, email } = credentials;
+        storageUser(credentials)
         navigation.navigate('Home', {user: user})
         })
         .catch((error) => {
@@ -41,36 +43,60 @@ const RegistrationScreen = ({ navigation }) => {
         console.warn(errorCode,errorMessage)
         });
     }
+    const storageUser = async (user) => {
+        const { username, email } = user;
+        try {
+            const docRef = await addDoc(collection(db, "users"), {
+                username:username,
+                uid: email
+            });
+            console.log("Document written with ID: ", docRef.id);
+          } catch (e) {
+            console.error("Error adding document: ", e);
+          }
+          db.collection("users").add({
+            username:username,
+            uid: email
+        })
+        .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+    }
     return (
-        <View style={styles.mainContainer}>
-            <View style={styles.topContainer}>
-                <Image 
-                source={require('../../assets/favicon.png')}
-                />
+       <ScrollView>
+            <View style={styles.mainContainer}>
+                <View style={styles.topContainer}>
+                    <Image 
+                    source={require('../../assets/favicon.png')}
+                    />
+                </View>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.titleStl}>Create account</Text>
+                    <Text style={styles.subtitleStl}>Add your details to register</Text>
+                </View>
+                <View style={styles.formContainer}>
+                    <Formik
+                        onSubmit= {user => createUser(user)}
+                        validationSchema= {Yup.object({
+                        username: Yup.string().min(4).required('username is required'),
+                        email: Yup.string().email('Invalid Email').required('Email is required'),
+                        password: Yup.string().min(6).required('Password is required'),
+                        })}
+                        initialValues={{ email: '', password: ''}}
+                    >
+                        <RegistrationForm />
+                    </Formik>
+                </View>
+                <View style={styles.footerContainer}>
+                    <Text style={styles.subtitleStl}>Already have an account? </Text>
+                    <Text style={styles.signInSub}>Sign In</Text>
+                </View>
+                <StatusBar style="light" />
             </View>
-            <View style={styles.titleContainer}>
-                <Text style={styles.titleStl}>Create account</Text>
-                <Text style={styles.subtitleStl}>Add your details to register</Text>
-            </View>
-            <View style={styles.formContainer}>
-                <Formik
-                    onSubmit= {user => createUser(user)}
-                    validationSchema= {Yup.object({
-                    username: Yup.string().min(4).required('username is required'),
-                    email: Yup.string().email('Invalid Email').required('Email is required'),
-                    password: Yup.string().min(6).required('Password is required'),
-                    })}
-                    initialValues={{ email: '', password: ''}}
-                >
-                    <RegistrationForm />
-                </Formik>
-            </View>
-            <View style={styles.footerContainer}>
-                <Text style={styles.subtitleStl}>Already have an account? </Text>
-                <Text style={styles.signInSub}>Sign In</Text>
-            </View>
-            <StatusBar style="light" />
-        </View>
+       </ScrollView>
     )
 }
 
@@ -81,7 +107,9 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
-      flexDirection: 'row'
+      flexDirection: 'row',
+      marginTop: 10,
+      marginBottom: 20,
     },
     titleContainer: {
       marginTop: 20,
