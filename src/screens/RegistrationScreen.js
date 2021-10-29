@@ -5,6 +5,7 @@ import RegistrationForm from '../components/RegistrationForm'
 import * as Yup from 'yup'
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { StatusBar } from 'expo-status-bar';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -68,6 +69,7 @@ const RegistrationScreen = ({ navigation }) => {
                 <Text style={styles.subtitleStl}>Already have an account? </Text>
                 <Text style={styles.signInSub}>Sign In</Text>
             </View>
+            <StatusBar style="light" />
         </View>
     )
 }
@@ -118,5 +120,8 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: 'bold',
         color: '#3004be'
+    },
+    statusColor: {
+        color: '#fff'
     }
   });
