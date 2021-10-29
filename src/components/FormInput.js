@@ -25,7 +25,7 @@ export default FormInput
 
 const styles = StyleSheet.create({
     inputStl: {
-        borderRadius: 20,
+        borderRadius: 30,
         backgroundColor: '#eee',
         height: 60,
         width: '90%',

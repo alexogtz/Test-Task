@@ -31,7 +31,7 @@ export default RegistrationForm
 
 const styles = StyleSheet.create({
     submitButton: {
-        borderRadius: 20,
+        borderRadius: 30,
         backgroundColor: '#3004be',
         margin: 20,
         height: 50,
